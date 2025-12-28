@@ -1,0 +1,22 @@
+# Web Server
+fastapi
+uvicorn
+
+# AI & LLM
+google-generativeai    # For Gemini Pro
+langchain              # For RAG orchestration
+langchain-google-genai
+
+# Database & Vector Store
+supabase               # For pgvector/Supabase
+pinecone-client        # (Alternative vector DB)
+psycopg2-binary        # For PostgreSQL connections
+
+# Audio & TTS
+elevenlabs             # For the high-quality voice
+python-multipart       # For file/audio handling
+
+# Utilities
+python-dotenv          # For API Keys
+requests
+pydantic
