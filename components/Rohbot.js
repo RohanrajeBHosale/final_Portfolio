@@ -9,23 +9,30 @@ export default function Rohbot() {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
   
-  // Interruption Control
+  // Voice & Interruption Control
   const audioQueue = useRef([]);
   const isPlaying = useRef(false);
   const currentAudio = useRef(null);
 
+  // Suggestions Data
+  const presets = [
+    "Tell me about your education",
+    "What are your core AI skills?",
+    "Show me your RAG projects",
+    "Data Center experience?"
+  ];
+
   useEffect(() => {
     setMounted(true);
-    setMessages([{ role: 'bot', content: "Hi! I'm Rohan's twin. Ask me something brief." }]);
+    setMessages([{ role: 'bot', content: "Hi! I'm Rohan's twin. Use the suggestions below or ask me anything brief." }]);
   }, []);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages]);
+  }, [messages, loading]);
 
   if (!mounted) return null;
 
-  // --- INTERRUPT & STOP AUDIO ---
   const stopBotSpeaking = () => {
     if (currentAudio.current) {
         currentAudio.current.pause();
@@ -35,7 +42,6 @@ export default function Rohbot() {
     isPlaying.current = false;
   };
 
-  // --- QUEUED TTS (Plays sentences in order) ---
   const playNextInQueue = () => {
     if (audioQueue.current.length === 0) {
       isPlaying.current = false;
@@ -64,14 +70,12 @@ export default function Rohbot() {
     } catch (e) { console.error(e); }
   };
 
-  const handleSendMessage = async () => {
-    if (!input.trim() || loading) return;
+  const handleSendMessage = async (textOverride) => {
+    const text = typeof textOverride === 'string' ? textOverride : input;
+    if (!text.trim() || loading) return;
     
-    // 1. INTERRUPT: Stop existing voice immediately
     stopBotSpeaking();
-
-    const userText = input;
-    setMessages(prev => [...prev, { role: 'user', content: userText }]);
+    setMessages(prev => [...prev, { role: 'user', content: text }]);
     setInput('');
     setLoading(true);
 
@@ -80,7 +84,7 @@ export default function Rohbot() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-            userInput: userText, 
+            userInput: text, 
             history: messages.slice(1).map(m => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] })) 
         })
       });
@@ -100,10 +104,9 @@ export default function Rohbot() {
         fullText += chunk;
         currentSentence += chunk;
 
-        // 2. LATENCY FIX: If we find punctuation, speak that sentence immediately
         if (/[.!?]/.test(chunk)) {
             speakSentence(currentSentence.trim());
-            currentSentence = ""; // Reset for next sentence
+            currentSentence = ""; 
         }
 
         setMessages(prev => {
@@ -112,8 +115,6 @@ export default function Rohbot() {
           return newMsgs;
         });
       }
-      
-      // Speak any remaining text that didn't end in punctuation
       if (currentSentence.trim()) speakSentence(currentSentence.trim());
 
     } catch (e) {
@@ -125,8 +126,12 @@ export default function Rohbot() {
 
   const s = {
     btn: { position: 'fixed', bottom: '30px', right: '30px', zIndex: 1000, width: '65px', height: '65px', borderRadius: '50%', backgroundColor: '#0070f3', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' },
-    win: { position: 'fixed', bottom: '110px', right: '30px', zIndex: 1000, width: '350px', height: '500px', backgroundColor: '#0d1117', border: '1px solid #333', borderRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.8)', fontFamily: 'sans-serif' },
-    msg: (role) => ({ alignSelf: role === 'user' ? 'flex-end' : 'flex-start', backgroundColor: role === 'user' ? '#0070f3' : '#1a1a1a', color: '#fff', padding: '12px 16px', borderRadius: '15px', fontSize: '14px', maxWidth: '85%', lineHeight: '1.4' })
+    win: { position: 'fixed', bottom: '110px', right: '30px', zIndex: 1000, width: '350px', height: '520px', backgroundColor: '#0d1117', border: '1px solid #333', borderRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.8)', fontFamily: 'sans-serif' },
+    chat: { flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' },
+    msg: (role) => ({ alignSelf: role === 'user' ? 'flex-end' : 'flex-start', backgroundColor: role === 'user' ? '#0070f3' : '#1a1a1a', color: '#fff', padding: '12px 16px', borderRadius: '15px', fontSize: '13px', maxWidth: '85%', lineHeight: '1.4' }),
+    suggestions: { display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '0 20px 15px 20px', backgroundColor: '#0d1117' },
+    pill: { backgroundColor: '#161b22', border: '1px solid #333', color: '#888', padding: '6px 12px', borderRadius: '20px', fontSize: '11px', cursor: 'pointer', transition: '0.2s' },
+    inputArea: { padding: '15px', borderTop: '1px solid #222', display: 'flex', gap: '10px', backgroundColor: '#111' }
   };
 
   return (
@@ -136,16 +141,36 @@ export default function Rohbot() {
       </button>
       {isOpen && (
         <div style={s.win}>
-          <div style={{padding:'15px', background:'#111', borderBottom:'1px solid #222', fontWeight:'bold', display:'flex', justifyContent:'space-between'}}>
-            <span>ROHbot</span>
-            <button onClick={stopBotSpeaking} style={{fontSize:'10px', color:'#555', background:'none', border:'1px solid #333', borderRadius:'4px', cursor:'pointer'}}>SHUT UP</button>
+          <div style={{padding:'15px', background:'#111', borderBottom:'1px solid #222', fontWeight:'bold', display:'flex', justifyContent:'space-between', alignItems: 'center'}}>
+            <span style={{fontSize: '14px', color: '#eee'}}>ROHbot</span>
+            <button onClick={stopBotSpeaking} style={{fontSize:'9px', color:'#555', background:'none', border:'1px solid #333', padding: '4px 8px', borderRadius:'4px', cursor:'pointer', fontWeight: 'bold'}}>STOP VOICE</button>
           </div>
-          <div ref={scrollRef} style={{flex:1, overflowY:'auto', padding:'20px', display:'flex', flexDirection:'column', gap:'12px'}}>
+          
+          <div ref={scrollRef} style={s.chat}>
             {messages.map((m, i) => ( <div key={i} style={s.msg(m.role)}>{m.content}</div> ))}
+            {loading && <div style={{fontSize:'11px', color:'#555', animate:'pulse'}}>Thinking...</div>}
           </div>
-          <div style={{padding:'15px', borderTop:'1px solid #222', display:'flex', gap:'10px'}}>
-            <input style={{flex:1, background:'#000', border:'1px solid #333', color:'#fff', padding:'10px', borderRadius:'8px', outline:'none'}} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSendMessage()} placeholder="Interrupt me..." />
-            <button onClick={handleSendMessage} style={{background:'#0070f3', border:'none', color:'#fff', padding:'10px 15px', borderRadius:'8px', cursor:'pointer'}}>↑</button>
+
+          {/* Preset Suggestions - Only show when chat is starting */}
+          {messages.length === 1 && !loading && (
+            <div style={s.suggestions}>
+              {presets.map(text => (
+                <button 
+                  key={text} 
+                  onClick={() => handleSendMessage(text)} 
+                  style={s.pill}
+                  onMouseOver={e => {e.target.style.borderColor = '#0070f3'; e.target.style.color = '#fff'}}
+                  onMouseOut={e => {e.target.style.borderColor = '#333'; e.target.style.color = '#888'}}
+                >
+                  {text}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div style={s.inputArea}>
+            <input style={{flex:1, background:'#000', border:'1px solid #333', color:'#fff', padding:'10px', borderRadius:'12px', outline:'none', fontSize: '13px'}} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSendMessage()} placeholder="Ask me something..." />
+            <button onClick={() => handleSendMessage()} style={{background:'#0070f3', border:'none', color:'#fff', padding:'10px 15px', borderRadius:'12px', cursor:'pointer'}}>↑</button>
           </div>
         </div>
       )}
