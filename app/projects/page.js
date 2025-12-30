@@ -1,284 +1,332 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import gsap from "gsap";
 
-const PROJECTS = [
-    {
-        id: "rohbot",
-        featured: true,
-        category: "GenAI",
-        title: "ROHbot — Production-Style Portfolio RAG Assistant",
-        oneLiner:
-            "RAG assistant that answers questions about my work with grounded retrieval, citations, and deployable API structure.",
-        proof: ["Live Demo", "GitHub", "Architecture"],
-        links: {
-            demo: "https://rohbot.vercel.app",
-            github: "https://github.com/RohanrajeBHosale/ROHbot",
-            internal: "/projects/rohbot",
-        },
-        stack: ["Gemini/OpenAI", "Supabase Vector", "Node.js", "Vercel"],
-        signals: ["Grounding + citations", "Deployable", "Structured pipeline"],
-        metric: "Deployed + end-to-end system (ingest → index → retrieve → respond)",
-    },
-    {
-        id: "sketch-studio",
-        featured: true,
-        category: "ML",
-        title: "Sketch Studio — Sketch → Photorealistic Portraits",
-        oneLiner:
-            "Stable Diffusion + ControlNet pipeline to preserve structure while generating photorealistic portraits from sketches.",
-        proof: ["Writeup", "GitHub"],
-        links: {
-            github: "https://github.com/RohanrajeBHosale",
-            writeup: "/projects",
-        },
-        stack: ["Stable Diffusion", "ControlNet", "BLIP", "PyTorch"],
-        signals: ["Image conditioning", "Prompt adherence", "Evaluation-ready"],
-        metric: "Reported SSIM/CLIP-style evaluation (add your real numbers here)",
-    },
-    {
-        id: "anomaly",
-        featured: true,
-        category: "Security",
-        title: "Network Anomaly Detection — ML + Security",
-        oneLiner:
-            "Traffic anomaly detection with classical and deep methods; focuses on signal quality and deployable evaluation.",
-        proof: ["GitHub", "Writeup"],
-        links: {
-            github: "https://github.com/RohanrajeBHosale",
-            writeup: "/projects",
-        },
-        stack: ["Python", "Scikit-learn", "Autoencoder", "Scapy"],
-        signals: ["Security context", "Model comparison", "Practical pipeline"],
-        metric: "Compared multiple models + baseline (add your AUC/F1 here)",
-    },
+/**
+ * CURATE THIS LIST. This is your portfolio. Not GitHub search.
+ * Keep 6–9 projects max. If it’s not inspectable, remove it.
+ */
+const CURATED = [
+  {
+    id: "rohbot",
+    featured: true,
+    category: "GenAI",
+    title: "ROHbot — Portfolio RAG Assistant",
+    oneLiner:
+      "LLM assistant that answers questions about my work using grounded retrieval with sources, eval hooks, and deployable structure.",
+    repo: "RohanrajeBHosale/ROHbot",
+    demo: "https://rohbot.vercel.app",
+    github: "https://github.com/RohanrajeBHosale/ROHbot",
+    writeup:
+      "https://medium.com/@rohanrajebhosale/building-rohbot-a-deep-dive-into-my-ai-twin-5770320185a7",
+    stack: ["Gemini/OpenAI", "Supabase Vector", "Node.js", "Vercel"],
+    signal: "Grounding + citations • Deployable • System design",
+    metric: "Deployed system: ingest → index → retrieve → respond (add Hit@K / latency next)",
+  },
+  {
+    id: "sketch-studio",
+    featured: true,
+    category: "ML",
+    title: "Sketch Studio — Sketch → Photorealistic Portraits",
+    oneLiner:
+      "Stable Diffusion + ControlNet pipeline to preserve sketch structure while generating photorealistic portraits.",
+    repo: null, // put repo like "RohanrajeBHosale/sketch-studio" when ready
+    demo: null,
+    github: "https://github.com/RohanrajeBHosale", // replace with exact repo link
+    writeup: null,
+    stack: ["Stable Diffusion", "ControlNet", "BLIP", "PyTorch"],
+    signal: "Conditioned generation • Prompt adherence • Evaluation-ready",
+    metric: "Add SSIM/CLIP or qualitative eval grid (don’t leave blank long-term)",
+  },
+  {
+    id: "anomaly",
+    featured: true,
+    category: "Security",
+    title: "Network Anomaly Detection",
+    oneLiner:
+      "Traffic anomaly detection comparing classical + deep approaches with practical evaluation and pipeline structure.",
+    repo: null, // put real repo here
+    demo: null,
+    github: "https://github.com/RohanrajeBHosale", // replace
+    writeup: null,
+    stack: ["Python", "Scikit-learn", "Autoencoder", "Scapy"],
+    signal: "Model comparison • Security context • Pipeline thinking",
+    metric: "Add AUC/F1 + dataset size + false positive rate",
+  },
 
-    // Non-featured (keep these strong, not many)
-    {
-        id: "market-intel",
-        featured: false,
-        category: "GenAI",
-        title: "GenAI Market Intelligence System (Agents + RAG)",
-        oneLiner:
-            "Multi-agent pipeline to summarize and query large document streams with retrieval + orchestration.",
-        proof: ["GitHub"],
-        links: { github: "https://github.com/RohanrajeBHosale" },
-        stack: ["LangGraph/LangChain", "Python", "Vector DB", "Cloud"],
-        signals: ["Agent orchestration", "RAG", "Pipeline design"],
-        metric: "Processes documents daily (add real volume + latency)",
-    },
-    {
-        id: "fake-news",
-        featured: false,
-        category: "ML",
-        title: "Fake News Detection Engine (NLP)",
-        oneLiner:
-            "Fine-tuned transformer model with a simple serving layer for inference and evaluation.",
-        proof: ["GitHub"],
-        links: { github: "https://github.com/RohanrajeBHosale" },
-        stack: ["RoBERTa", "Hugging Face", "Python", "API/Streamlit"],
-        signals: ["Fine-tuning", "Eval", "Serving"],
-        metric: "Add test accuracy/F1 + dataset size (don’t leave blank)",
-    },
-    {
-        id: "etl",
-        featured: false,
-        category: "Data",
-        title: "End-to-End Data Pipeline (ETL + Analytics)",
-        oneLiner:
-            "ETL pipeline design with storage, transforms, and query-ready outputs; focuses on reliability and structure.",
-        proof: ["GitHub"],
-        links: { github: "https://github.com/RohanrajeBHosale" },
-        stack: ["Python", "SQL", "Spark/BigQuery", "Cloud"],
-        signals: ["ETL", "Analytics-ready", "Scalable"],
-        metric: "Add data size + runtime + schedule (daily/hourly)",
-    },
+  // Non-featured (keep these STRONG, few, and inspectable)
+  {
+    id: "fake-news",
+    featured: false,
+    category: "ML",
+    title: "Fake News Detection Engine (NLP)",
+    oneLiner:
+      "Fine-tuned transformer model with a simple inference layer and evaluation workflow.",
+    repo: null,
+    demo: null,
+    github: "https://github.com/RohanrajeBHosale",
+    writeup: null,
+    stack: ["RoBERTa", "Hugging Face", "Python"],
+    signal: "Fine-tuning • Eval • Serving",
+    metric: "Add F1 + dataset size + baseline comparison",
+  },
+  {
+    id: "etl",
+    featured: false,
+    category: "Data",
+    title: "Data Pipeline — ETL to Analytics Outputs",
+    oneLiner:
+      "ETL pipeline design focusing on clean transforms, reliability, and query-ready outputs.",
+    repo: null,
+    demo: null,
+    github: "https://github.com/RohanrajeBHosale",
+    writeup: null,
+    stack: ["Python", "SQL", "Spark/BigQuery"],
+    signal: "ETL • Scalable • Production mindset",
+    metric: "Add runtime + schedule + data volume",
+  },
 ];
 
-const FILTERS = ["All", "GenAI", "ML", "Data", "Security"];
-
-function Chip({ active, children, onClick }) {
-    return (
-        <button
-            onClick={onClick}
-            className="card"
-            style={{
-                padding: "10px 14px",
-                border: active ? "1px solid var(--accent-color-1)" : "1px solid var(--border-color)",
-                color: active ? "#fff" : "var(--subtle-text-color)",
-                background: active ? "var(--accent-color-1)" : "rgba(255,255,255,0.03)",
-                cursor: "pointer",
-            }}
-        >
-            {children}
-        </button>
-    );
-}
+const FILTERS = ["All", "Featured", "GenAI", "ML", "Data", "Security"];
 
 function Pill({ children }) {
-    return (
-        <span
-            style={{
-                fontSize: "0.8rem",
-                padding: "6px 10px",
-                borderRadius: "999px",
-                border: "1px solid var(--border-color)",
-                background: "rgba(255,255,255,0.03)",
-                color: "var(--subtle-text-color)",
-            }}
-        >
+  return (
+    <span
+      style={{
+        fontSize: "0.8rem",
+        padding: "6px 10px",
+        borderRadius: "999px",
+        border: "1px solid var(--border-color)",
+        background: "rgba(255,255,255,0.03)",
+        color: "var(--subtle-text-color)",
+        whiteSpace: "nowrap",
+      }}
+    >
       {children}
     </span>
-    );
+  );
 }
 
-function ActionLink({ href, label }) {
-    if (!href) return null;
-    const external = href.startsWith("http");
-    return external ? (
-        <a href={href} target="_blank" rel="noreferrer" className="card" style={{ padding: "9px 12px", fontSize: "0.9rem" }}>
-            {label}
-        </a>
-    ) : (
-        <Link href={href} className="card" style={{ padding: "9px 12px", fontSize: "0.9rem" }}>
-            {label}
-        </Link>
-    );
+function Chip({ active, children, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="card"
+      style={{
+        padding: "10px 14px",
+        border: active ? "1px solid var(--accent-color-1)" : "1px solid var(--border-color)",
+        color: active ? "#fff" : "var(--subtle-text-color)",
+        background: active ? "var(--accent-color-1)" : "rgba(255,255,255,0.03)",
+        cursor: "pointer",
+      }}
+    >
+      {children}
+    </button>
+  );
 }
 
-function ProjectCard({ p }) {
+function Action({ href, label }) {
+  if (!href) return null;
+  const external = href.startsWith("http");
+  const style = { padding: "9px 12px", fontSize: "0.9rem" };
+
+  if (external) {
     return (
-        <div className="card highlight-card" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: "10px", flexWrap: "wrap" }}>
-        <span style={{ fontSize: "0.75rem", letterSpacing: "0.08em", color: "var(--accent-color-1)" }}>
-          {p.category.toUpperCase()}
-        </span>
-                {p.featured && <Pill>Featured</Pill>}
-            </div>
-
-            <h3 style={{ margin: 0 }}>{p.title}</h3>
-            <p style={{ margin: 0, color: "var(--subtle-text-color)", lineHeight: 1.6 }}>{p.oneLiner}</p>
-
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "6px" }}>
-                {p.stack.map((s) => (
-                    <Pill key={s}>{s}</Pill>
-                ))}
-            </div>
-
-            <div style={{ marginTop: "6px" }}>
-                <p style={{ margin: "0 0 6px 0", fontWeight: 700 }}>Signal</p>
-                <p style={{ margin: 0, color: "var(--subtle-text-color)" }}>{p.signals.join(" · ")}</p>
-            </div>
-
-            <div style={{ marginTop: "6px" }}>
-                <p style={{ margin: "0 0 6px 0", fontWeight: 700 }}>Metric</p>
-                <p style={{ margin: 0, color: "var(--subtle-text-color)" }}>{p.metric}</p>
-            </div>
-
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
-                <ActionLink href={p.links?.demo} label="Live Demo" />
-                <ActionLink href={p.links?.github} label="GitHub" />
-                <ActionLink href={p.links?.writeup} label="Writeup" />
-                <ActionLink href={p.links?.internal} label="Architecture" />
-            </div>
-        </div>
+      <a href={href} target="_blank" rel="noreferrer" className="card" style={style}>
+        {label}
+      </a>
     );
+  }
+  return (
+    <Link href={href} className="card" style={style}>
+      {label}
+    </Link>
+  );
+}
+
+function formatDate(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
 export default function ProjectsPage() {
-    const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("All");
+  const [meta, setMeta] = useState({}); // repo -> {stars, language, updated_at}
+  const [status, setStatus] = useState("loading"); // loading | ok | limited
 
-    useEffect(() => {
-        const tl = gsap.timeline();
-        tl.from(".projects-hero", { y: 20, opacity: 0, duration: 0.6, ease: "power2.out" })
-            .from(".filter-row", { opacity: 0, y: 10, duration: 0.4 }, "-=0.2")
-            .from(".project-grid", { opacity: 0, y: 10, duration: 0.4 }, "-=0.2");
-    }, []);
+  useEffect(() => {
+    // Fetch GitHub metadata for curated repos only (lightweight, controlled)
+    const reposToFetch = CURATED.map((p) => p.repo).filter(Boolean);
 
-    const filtered = useMemo(() => {
-        if (filter === "All") return PROJECTS;
-        return PROJECTS.filter((p) => p.category === filter);
-    }, [filter]);
+    if (reposToFetch.length === 0) {
+      setStatus("ok");
+      return;
+    }
 
-    const featured = useMemo(() => PROJECTS.filter((p) => p.featured), []);
+    let cancelled = false;
 
-    return (
-        <div className="container">
-            {/* HERO */}
-            <section className="projects-hero" style={{ marginBottom: "40px" }}>
-                <h1 className="gradient-text" style={{ fontSize: "3rem", fontWeight: 900, marginBottom: "12px" }}>
-                    Projects
-                </h1>
-                <p style={{ color: "var(--subtle-text-color)", maxWidth: "900px", lineHeight: 1.7 }}>
-                    This page is intentionally curated. If a project doesn’t prove something real (system design, evaluation,
-                    deployment), it doesn’t belong here.
-                </p>
-            </section>
+    async function run() {
+      try {
+        const results = await Promise.all(
+          reposToFetch.map(async (full) => {
+            const res = await fetch(`https://api.github.com/repos/${full}`);
+            if (!res.ok) throw new Error("rate-limited");
+            const data = await res.json();
+            return [
+              full,
+              {
+                stars: data.stargazers_count,
+                language: data.language,
+                updated_at: data.updated_at,
+              },
+            ];
+          })
+        );
 
-            {/* FILTERS */}
-            <section className="filter-row" style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "40px" }}>
-                {FILTERS.map((f) => (
-                    <Chip key={f} active={filter === f} onClick={() => setFilter(f)}>
-                        {f}
-                    </Chip>
-                ))}
-            </section>
+        if (cancelled) return;
+        const m = {};
+        results.forEach(([k, v]) => (m[k] = v));
+        setMeta(m);
+        setStatus("ok");
+      } catch (e) {
+        if (cancelled) return;
+        // If GitHub rate limits, don’t break the page. Just hide meta.
+        setStatus("limited");
+      }
+    }
 
-            {/* FEATURED */}
-            {filter === "All" && (
-                <section className="section" style={{ marginBottom: "70px" }}>
-                    <h2 style={{ fontSize: "1.8rem", marginBottom: "18px" }}>Featured</h2>
-                    <div className="project-grid card-grid">
-                        {featured.map((p) => (
-                            <ProjectCard key={p.id} p={p} />
-                        ))}
-                    </div>
-                </section>
-            )}
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-            {/* ALL / FILTERED */}
-            <section className="section" style={{ marginBottom: "80px" }}>
-                <h2 style={{ fontSize: "1.8rem", marginBottom: "18px" }}>
-                    {filter === "All" ? "All projects" : `${filter} projects`}
-                </h2>
+  const filtered = useMemo(() => {
+    if (filter === "All") return CURATED;
+    if (filter === "Featured") return CURATED.filter((p) => p.featured);
+    return CURATED.filter((p) => p.category === filter);
+  }, [filter]);
 
-                <div className="project-grid card-grid">
-                    {filtered
-                        .filter((p) => filter !== "All" || !p.featured) // avoid duplicate featured in All
-                        .map((p) => (
-                            <ProjectCard key={p.id} p={p} />
-                        ))}
-                </div>
-            </section>
+  return (
+    <div
+      style={{
+        maxWidth: "1100px",
+        margin: "0 auto",
+        padding: "100px 20px",
+        minHeight: "100vh",
+      }}
+      className="container"
+    >
+      {/* HERO */}
+      <section style={{ marginBottom: "34px" }}>
+        <h1 className="gradient-text" style={{ fontSize: "3.2rem", fontWeight: 900, marginBottom: "12px" }}>
+          Projects
+        </h1>
+        <p style={{ color: "var(--subtle-text-color)", maxWidth: "900px", lineHeight: 1.7 }}>
+          Curated systems only. If it doesn’t demonstrate system design, evaluation, or deployment, it doesn’t belong here.
+        </p>
 
-            {/* BOTTOM CTA */}
-            <section
-                className="section"
-                style={{
-                    textAlign: "center",
-                    padding: "60px 40px",
-                    background: "rgba(255,255,255,0.02)",
-                    borderRadius: "20px",
-                    border: "1px solid var(--border-color)",
-                }}
+        {status === "limited" && (
+          <p style={{ marginTop: "12px", color: "var(--subtle-text-color)", fontSize: "0.95rem" }}>
+            GitHub metadata hidden (rate limited). Content is still fully available.
+          </p>
+        )}
+      </section>
+
+      {/* FILTERS */}
+      <section style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "34px" }}>
+        {FILTERS.map((f) => (
+          <Chip key={f} active={filter === f} onClick={() => setFilter(f)}>
+            {f}
+          </Chip>
+        ))}
+      </section>
+
+      {/* GRID */}
+      <section className="card-grid" style={{ marginBottom: "70px" }}>
+        {filtered.map((p) => {
+          const m = p.repo ? meta[p.repo] : null;
+
+          return (
+            <div
+              key={p.id}
+              className="card highlight-card"
+              style={{ display: "flex", flexDirection: "column", gap: "12px" }}
             >
-                <h2 className="gradient-text" style={{ fontSize: "2.2rem", marginBottom: "14px" }}>
-                    Want the fastest proof?
-                </h2>
-                <p style={{ color: "var(--subtle-text-color)", maxWidth: "650px", margin: "0 auto 26px" }}>
-                    Start with ROHbot. You’ll see how I structure retrieval, grounding, and deployment — not just notebooks.
-                </p>
-                <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
-                    <a className="card" style={{ padding: "10px 14px" }} href="https://rohbot.vercel.app" target="_blank" rel="noreferrer">
-                        Live Demo
-                    </a>
-                    <a className="card" style={{ padding: "10px 14px" }} href="https://github.com/RohanrajeBHosale/ROHbot" target="_blank" rel="noreferrer">
-                        GitHub
-                    </a>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "10px", flexWrap: "wrap" }}>
+                <span style={{ fontSize: "0.75rem", letterSpacing: "0.08em", color: "var(--accent-color-1)" }}>
+                  {p.category.toUpperCase()}
+                </span>
+                {p.featured && <Pill>Featured</Pill>}
+              </div>
+
+              <h3 style={{ margin: 0 }}>{p.title}</h3>
+              <p style={{ margin: 0, color: "var(--subtle-text-color)", lineHeight: 1.6 }}>{p.oneLiner}</p>
+
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "6px" }}>
+                {p.stack.map((s) => (
+                  <Pill key={s}>{s}</Pill>
+                ))}
+              </div>
+
+              <div style={{ marginTop: "6px" }}>
+                <p style={{ margin: "0 0 6px 0", fontWeight: 800 }}>Signal</p>
+                <p style={{ margin: 0, color: "var(--subtle-text-color)" }}>{p.signal}</p>
+              </div>
+
+              <div style={{ marginTop: "6px" }}>
+                <p style={{ margin: "0 0 6px 0", fontWeight: 800 }}>Metric</p>
+                <p style={{ margin: 0, color: "var(--subtle-text-color)" }}>{p.metric}</p>
+              </div>
+
+              {m && (
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "8px" }}>
+                  <Pill>★ {m.stars}</Pill>
+                  {m.language && <Pill>{m.language}</Pill>}
+                  {m.updated_at && <Pill>Updated {formatDate(m.updated_at)}</Pill>}
                 </div>
-            </section>
+              )}
+
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
+                <Action href={p.demo} label="Live Demo" />
+                <Action href={p.github} label="GitHub" />
+                <Action href={p.writeup} label="Writeup" />
+                <Action href={p.internal} label="Architecture" />
+              </div>
+            </div>
+          );
+        })}
+      </section>
+
+      {/* BOTTOM CTA */}
+      <section
+        style={{
+          textAlign: "center",
+          padding: "60px 40px",
+          background: "rgba(255,255,255,0.02)",
+          borderRadius: "20px",
+          border: "1px solid var(--border-color)",
+        }}
+        className="card"
+      >
+        <h2 className="gradient-text" style={{ fontSize: "2.2rem", marginBottom: "14px" }}>
+          Want the fastest proof?
+        </h2>
+        <p style={{ color: "var(--subtle-text-color)", maxWidth: "650px", margin: "0 auto 26px" }}>
+          Start with ROHbot. It shows retrieval, grounding, and a deployable system structure — not just notebooks.
+        </p>
+        <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
+          <a className="card" style={{ padding: "10px 14px" }} href="https://rohbot.vercel.app" target="_blank" rel="noreferrer">
+            Live Demo
+          </a>
+          <a className="card" style={{ padding: "10px 14px" }} href="https://github.com/RohanrajeBHosale/ROHbot" target="_blank" rel="noreferrer">
+            GitHub
+          </a>
         </div>
-    );
+      </section>
+    </div>
+  );
 }
