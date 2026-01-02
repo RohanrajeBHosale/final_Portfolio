@@ -8,7 +8,7 @@ export default function Rohbot() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
-  
+
   // Voice & Interruption Control
   const audioQueue = useRef([]);
   const isPlaying = useRef(false);
@@ -35,9 +35,13 @@ export default function Rohbot() {
 
   const stopBotSpeaking = () => {
     if (currentAudio.current) {
-        currentAudio.current.pause();
-        currentAudio.current = null;
+      currentAudio.current.pause();
+      currentAudio.current = null;
     }
+    // Revoke queued URLs to avoid leaks
+    try {
+      audioQueue.current.forEach((u) => URL.revokeObjectURL(u));
+    } catch {}
     audioQueue.current = [];
     isPlaying.current = false;
   };
@@ -48,33 +52,70 @@ export default function Rohbot() {
       return;
     }
     isPlaying.current = true;
+
     const audioUrl = audioQueue.current.shift();
     const audio = new Audio(audioUrl);
     currentAudio.current = audio;
-    audio.play();
-    audio.onended = () => playNextInQueue();
+
+    audio.play().catch(() => {
+      // If autoplay is blocked, just stop queue gracefully
+      isPlaying.current = false;
+    });
+
+    audio.onended = () => {
+      try { URL.revokeObjectURL(audioUrl); } catch {}
+      playNextInQueue();
+    };
   };
 
   const speakSentence = async (text) => {
+    const clean = (text || '').trim();
+    if (!clean) return;
+
     try {
       const res = await fetch('https://rohbot.vercel.app/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
+        body: JSON.stringify({ text: clean })
       });
+
       if (!res.ok) return;
+
       const blob = await res.blob();
+      // Basic guard: if backend accidentally returns JSON/html, don’t try to play it
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('audio') && blob.type && !blob.type.includes('audio')) return;
+
       const url = URL.createObjectURL(blob);
       audioQueue.current.push(url);
       if (!isPlaying.current) playNextInQueue();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const buildHistoryForBackend = (msgs) => {
+    // Backend wants Gemini-like: { role: 'user'|'model', parts:[{text}] }
+    // Skip the first system greeting bubble
+    return msgs
+      .slice(1)
+      .filter(m => m?.content)
+      .map(m => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: String(m.content) }]
+      }));
   };
 
   const handleSendMessage = async (textOverride) => {
     const text = typeof textOverride === 'string' ? textOverride : input;
     if (!text.trim() || loading) return;
-    
+
     stopBotSpeaking();
+
+    // Snapshot messages BEFORE we append the new user message (state updates are async)
+    const snapshot = messages;
+
+    // Add user message
     setMessages(prev => [...prev, { role: 'user', content: text }]);
     setInput('');
     setLoading(true);
@@ -83,41 +124,77 @@ export default function Rohbot() {
       const res = await fetch('https://rohbot.vercel.app/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            userInput: text, 
-            history: messages.slice(1).map(m => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] })) 
+        body: JSON.stringify({
+          userInput: text,
+          history: buildHistoryForBackend(snapshot)
         })
       });
 
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        console.error('chat error:', errText);
+        setMessages(prev => [...prev, { role: 'bot', content: "Snag in the connection." }]);
+        return;
+      }
+
+      const contentType = (res.headers.get('content-type') || '').toLowerCase();
+
+      // ✅ CASE 1: Backend returns JSON { reply: "..." }
+      if (contentType.includes('application/json')) {
+        const data = await res.json().catch(() => ({}));
+        const replyText = (data && data.reply) ? String(data.reply) : "No reply returned.";
+
+        setMessages(prev => [...prev, { role: 'bot', content: replyText }]);
+
+        // Speak as one chunk (or split if you want)
+        speakSentence(replyText);
+        return;
+      }
+
+      // ✅ CASE 2: Backend streams plain text
+      if (!res.body) {
+        // Fallback: treat as plain text
+        const replyText = await res.text().catch(() => "No reply returned.");
+        setMessages(prev => [...prev, { role: 'bot', content: replyText }]);
+        speakSentence(replyText);
+        return;
+      }
+
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
+
+      // Add empty bot message to stream into
       setMessages(prev => [...prev, { role: 'bot', content: "" }]);
-      
-      let fullText = ""; 
+
+      let fullText = "";
       let currentSentence = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
+
         const chunk = decoder.decode(value, { stream: true });
-        
         fullText += chunk;
         currentSentence += chunk;
 
-        if (/[.!?]/.test(chunk)) {
-            speakSentence(currentSentence.trim());
-            currentSentence = ""; 
+        // Speak when punctuation arrives
+        if (/[.!?]\s*$/.test(currentSentence) || /[.!?]/.test(chunk)) {
+          const s = currentSentence.trim();
+          if (s) speakSentence(s);
+          currentSentence = "";
         }
 
         setMessages(prev => {
           const newMsgs = [...prev];
-          newMsgs[newMsgs.length - 1].content = fullText;
+          newMsgs[newMsgs.length - 1] = { ...newMsgs[newMsgs.length - 1], content: fullText };
           return newMsgs;
         });
       }
+
       if (currentSentence.trim()) speakSentence(currentSentence.trim());
 
     } catch (e) {
+      console.error(e);
       setMessages(prev => [...prev, { role: 'bot', content: "Snag in the connection." }]);
     } finally {
       setLoading(false);
@@ -128,7 +205,7 @@ export default function Rohbot() {
     btn: { position: 'fixed', bottom: '30px', right: '30px', zIndex: 1000, width: '65px', height: '65px', borderRadius: '50%', backgroundColor: '#0070f3', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' },
     win: { position: 'fixed', bottom: '110px', right: '30px', zIndex: 1000, width: '350px', height: '520px', backgroundColor: '#0d1117', border: '1px solid #333', borderRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.8)', fontFamily: 'sans-serif' },
     chat: { flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' },
-    msg: (role) => ({ alignSelf: role === 'user' ? 'flex-end' : 'flex-start', backgroundColor: role === 'user' ? '#0070f3' : '#1a1a1a', color: '#fff', padding: '12px 16px', borderRadius: '15px', fontSize: '13px', maxWidth: '85%', lineHeight: '1.4' }),
+    msg: (role) => ({ alignSelf: role === 'user' ? 'flex-end' : 'flex-start', backgroundColor: role === 'user' ? '#0070f3' : '#1a1a1a', color: '#fff', padding: '12px 16px', borderRadius: '15px', fontSize: '13px', maxWidth: '85%', lineHeight: '1.4', whiteSpace: 'pre-wrap' }),
     suggestions: { display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '0 20px 15px 20px', backgroundColor: '#0d1117' },
     pill: { backgroundColor: '#161b22', border: '1px solid #333', color: '#888', padding: '6px 12px', borderRadius: '20px', fontSize: '11px', cursor: 'pointer', transition: '0.2s' },
     inputArea: { padding: '15px', borderTop: '1px solid #222', display: 'flex', gap: '10px', backgroundColor: '#111' }
@@ -139,25 +216,32 @@ export default function Rohbot() {
       <button style={s.btn} onClick={() => setIsOpen(!isOpen)}>
         {isOpen ? <span style={{color:'#fff', fontSize:'24px'}}>✕</span> : <span style={{fontSize:'30px'}}>🤖</span>}
       </button>
+
       {isOpen && (
         <div style={s.win}>
           <div style={{padding:'15px', background:'#111', borderBottom:'1px solid #222', fontWeight:'bold', display:'flex', justifyContent:'space-between', alignItems: 'center'}}>
             <span style={{fontSize: '14px', color: '#eee'}}>ROHbot</span>
-            <button onClick={stopBotSpeaking} style={{fontSize:'9px', color:'#555', background:'none', border:'1px solid #333', padding: '4px 8px', borderRadius:'4px', cursor:'pointer', fontWeight: 'bold'}}>STOP VOICE</button>
-          </div>
-          
-          <div ref={scrollRef} style={s.chat}>
-            {messages.map((m, i) => ( <div key={i} style={s.msg(m.role)}>{m.content}</div> ))}
-            {loading && <div style={{fontSize:'11px', color:'#555', animate:'pulse'}}>Thinking...</div>}
+            <button
+              onClick={stopBotSpeaking}
+              style={{fontSize:'9px', color:'#555', background:'none', border:'1px solid #333', padding: '4px 8px', borderRadius:'4px', cursor:'pointer', fontWeight: 'bold'}}
+            >
+              STOP VOICE
+            </button>
           </div>
 
-          {/* Preset Suggestions - Only show when chat is starting */}
+          <div ref={scrollRef} style={s.chat}>
+            {messages.map((m, i) => (
+              <div key={i} style={s.msg(m.role)}>{m.content}</div>
+            ))}
+            {loading && <div style={{fontSize:'11px', color:'#555'}}>Thinking...</div>}
+          </div>
+
           {messages.length === 1 && !loading && (
             <div style={s.suggestions}>
               {presets.map(text => (
-                <button 
-                  key={text} 
-                  onClick={() => handleSendMessage(text)} 
+                <button
+                  key={text}
+                  onClick={() => handleSendMessage(text)}
                   style={s.pill}
                   onMouseOver={e => {e.target.style.borderColor = '#0070f3'; e.target.style.color = '#fff'}}
                   onMouseOut={e => {e.target.style.borderColor = '#333'; e.target.style.color = '#888'}}
@@ -169,8 +253,19 @@ export default function Rohbot() {
           )}
 
           <div style={s.inputArea}>
-            <input style={{flex:1, background:'#000', border:'1px solid #333', color:'#fff', padding:'10px', borderRadius:'12px', outline:'none', fontSize: '13px'}} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSendMessage()} placeholder="Ask me something..." />
-            <button onClick={() => handleSendMessage()} style={{background:'#0070f3', border:'none', color:'#fff', padding:'10px 15px', borderRadius:'12px', cursor:'pointer'}}>↑</button>
+            <input
+              style={{flex:1, background:'#000', border:'1px solid #333', color:'#fff', padding:'10px', borderRadius:'12px', outline:'none', fontSize: '13px'}}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+              placeholder="Ask me something..."
+            />
+            <button
+              onClick={() => handleSendMessage()}
+              style={{background:'#0070f3', border:'none', color:'#fff', padding:'10px 15px', borderRadius:'12px', cursor:'pointer'}}
+            >
+              ↑
+            </button>
           </div>
         </div>
       )}
