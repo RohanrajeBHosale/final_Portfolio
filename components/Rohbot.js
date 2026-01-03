@@ -1,6 +1,4 @@
-// /components/Rohbot.js
 'use client';
-
 import { useEffect, useRef, useState } from 'react';
 
 export default function Rohbot() {
@@ -11,13 +9,12 @@ export default function Rohbot() {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
 
-  // audio queue
+  // Voice queue
   const audioQueue = useRef([]);
   const isPlaying = useRef(false);
   const currentAudio = useRef(null);
 
-  // IMPORTANT: keep these as refs so streaming doesn’t reset them
-  const fullTextRef = useRef('');
+  // Track how much of the bot text we've already spoken (prevents repeats)
   const spokenUpToRef = useRef(0);
 
   const presets = [
@@ -43,7 +40,9 @@ export default function Rohbot() {
       currentAudio.current.pause();
       currentAudio.current = null;
     }
-    try { audioQueue.current.forEach(u => URL.revokeObjectURL(u)); } catch {}
+    try {
+      audioQueue.current.forEach((u) => URL.revokeObjectURL(u));
+    } catch {}
     audioQueue.current = [];
     isPlaying.current = false;
   };
@@ -54,7 +53,6 @@ export default function Rohbot() {
       return;
     }
     isPlaying.current = true;
-
     const audioUrl = audioQueue.current.shift();
     const audio = new Audio(audioUrl);
     currentAudio.current = audio;
@@ -69,23 +67,21 @@ export default function Rohbot() {
     };
   };
 
-  const speakTextChunk = async (text) => {
-    const clean = String(text || '').trim();
+  const speakSentence = async (text) => {
+    const clean = (text || '').trim();
     if (!clean) return;
 
     try {
       const res = await fetch('https://rohbot.vercel.app/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: clean }),
+        body: JSON.stringify({ text: clean })
       });
 
       if (!res.ok) return;
 
       const ct = (res.headers.get('content-type') || '').toLowerCase();
       const blob = await res.blob();
-
-      // If server accidentally returned JSON, don’t play garbage
       if (!ct.includes('audio') && !blob.type.includes('audio')) return;
 
       const url = URL.createObjectURL(blob);
@@ -96,7 +92,9 @@ export default function Rohbot() {
     }
   };
 
-  const buildHistory = (msgs) => {
+  const buildHistoryForBackend = (msgs) => {
+    // Your ROHbot backend expects Gemini-like history:
+    // { role: 'user'|'model', parts:[{text}] }
     return msgs
       .slice(1)
       .filter(m => m?.content)
@@ -106,11 +104,9 @@ export default function Rohbot() {
       }));
   };
 
-  // Speak only COMPLETE new sentences from the streamed text
   const speakNewCompleteSentences = (fullText) => {
     const slice = fullText.slice(spokenUpToRef.current);
-
-    // sentences that end in . ! ? followed by space/newline/end
+    // sentences ending with . ! ? then whitespace or end
     const matches = slice.matchAll(/[^.!?]*[.!?]+(\s|$)/g);
 
     let lastEnd = 0;
@@ -118,77 +114,76 @@ export default function Rohbot() {
 
     if (lastEnd > 0) {
       const toSpeak = slice.slice(0, lastEnd).trim();
-      if (toSpeak) speakTextChunk(toSpeak);
+      if (toSpeak) speakSentence(toSpeak);
       spokenUpToRef.current += lastEnd;
     }
   };
 
-  const handleSendMessage = async (override) => {
-    const text = (typeof override === 'string' ? override : input).trim();
-    if (!text || loading) return;
+  const handleSendMessage = async (textOverride) => {
+    const text = typeof textOverride === 'string' ? textOverride : input;
+    if (!text.trim() || loading) return;
 
     stopBotSpeaking();
+    spokenUpToRef.current = 0;
 
+    // snapshot (important)
     const snapshot = messages;
+
     setMessages(prev => [...prev, { role: 'user', content: text }]);
     setInput('');
     setLoading(true);
-
-    // reset stream buffers for this answer
-    fullTextRef.current = '';
-    spokenUpToRef.current = 0;
 
     try {
       const res = await fetch('https://rohbot.vercel.app/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userInput: text, history: buildHistory(snapshot) }),
+        body: JSON.stringify({
+          userInput: text,
+          history: buildHistoryForBackend(snapshot)
+        })
       });
 
       if (!res.ok) {
-        const err = await res.text().catch(() => '');
-        console.error('chat error:', res.status, err);
+        const t = await res.text().catch(() => '');
+        console.error('chat error:', res.status, t);
         setMessages(prev => [...prev, { role: 'bot', content: "Snag in the connection." }]);
         return;
       }
 
-      // Create the bot message we will fill while streaming
-      setMessages(prev => [...prev, { role: 'bot', content: "" }]);
-
+      // Streamed plain text
       if (!res.body) {
-        const t = await res.text().catch(() => "No reply returned.");
-        setMessages(prev => {
-          const m = [...prev];
-          m[m.length - 1].content = t;
-          return m;
-        });
-        speakTextChunk(t);
+        const replyText = await res.text().catch(() => "No reply returned.");
+        setMessages(prev => [...prev, { role: 'bot', content: replyText }]);
+        speakSentence(replyText);
         return;
       }
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
 
+      setMessages(prev => [...prev, { role: 'bot', content: "" }]);
+
+      let fullText = "";
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-
-        fullTextRef.current += chunk;
+        fullText += chunk;
 
         setMessages(prev => {
-          const m = [...prev];
-          m[m.length - 1] = { ...m[m.length - 1], content: fullTextRef.current };
-          return m;
+          const next = [...prev];
+          next[next.length - 1] = { ...next[next.length - 1], content: fullText };
+          return next;
         });
 
-        speakNewCompleteSentences(fullTextRef.current);
+        speakNewCompleteSentences(fullText);
       }
 
-      // speak any leftover partial sentence at end
-      const remaining = fullTextRef.current.slice(spokenUpToRef.current).trim();
-      if (remaining) speakTextChunk(remaining);
+      // Speak leftover fragment at end
+      const remaining = fullText.slice(spokenUpToRef.current).trim();
+      if (remaining) speakSentence(remaining);
 
     } catch (e) {
       console.error(e);
@@ -211,14 +206,14 @@ export default function Rohbot() {
   return (
     <>
       <button style={s.btn} onClick={() => setIsOpen(!isOpen)}>
-        {isOpen ? <span style={{ color:'#fff', fontSize:'24px' }}>✕</span> : <span style={{ fontSize:'30px' }}>🤖</span>}
+        {isOpen ? <span style={{color:'#fff', fontSize:'24px'}}>✕</span> : <span style={{fontSize:'30px'}}>🤖</span>}
       </button>
 
       {isOpen && (
         <div style={s.win}>
-          <div style={{ padding:'15px', background:'#111', borderBottom:'1px solid #222', fontWeight:'bold', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-            <span style={{ fontSize:'14px', color:'#eee' }}>ROHbot</span>
-            <button onClick={stopBotSpeaking} style={{ fontSize:'9px', color:'#555', background:'none', border:'1px solid #333', padding:'4px 8px', borderRadius:'4px', cursor:'pointer', fontWeight:'bold' }}>
+          <div style={{padding:'15px', background:'#111', borderBottom:'1px solid #222', fontWeight:'bold', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+            <span style={{fontSize:'14px', color:'#eee'}}>ROHbot</span>
+            <button onClick={stopBotSpeaking} style={{fontSize:'9px', color:'#555', background:'none', border:'1px solid #333', padding:'4px 8px', borderRadius:'4px', cursor:'pointer', fontWeight:'bold'}}>
               STOP VOICE
             </button>
           </div>
@@ -227,20 +222,20 @@ export default function Rohbot() {
             {messages.map((m, i) => (
               <div key={i} style={s.msg(m.role)}>{m.content}</div>
             ))}
-            {loading && <div style={{ fontSize:'11px', color:'#555' }}>Thinking...</div>}
+            {loading && <div style={{fontSize:'11px', color:'#555'}}>Thinking...</div>}
           </div>
 
           {messages.length === 1 && !loading && (
             <div style={s.suggestions}>
-              {presets.map(p => (
+              {presets.map(text => (
                 <button
-                  key={p}
-                  onClick={() => handleSendMessage(p)}
+                  key={text}
+                  onClick={() => handleSendMessage(text)}
                   style={s.pill}
                   onMouseOver={e => { e.target.style.borderColor = '#0070f3'; e.target.style.color = '#fff'; }}
                   onMouseOut={e => { e.target.style.borderColor = '#333'; e.target.style.color = '#888'; }}
                 >
-                  {p}
+                  {text}
                 </button>
               ))}
             </div>
@@ -248,13 +243,13 @@ export default function Rohbot() {
 
           <div style={s.inputArea}>
             <input
-              style={{ flex:1, background:'#000', border:'1px solid #333', color:'#fff', padding:'10px', borderRadius:'12px', outline:'none', fontSize:'13px' }}
+              style={{flex:1, background:'#000', border:'1px solid #333', color:'#fff', padding:'10px', borderRadius:'12px', outline:'none', fontSize:'13px'}}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
               placeholder="Ask me something..."
             />
-            <button onClick={() => handleSendMessage()} style={{ background:'#0070f3', border:'none', color:'#fff', padding:'10px 15px', borderRadius:'12px', cursor:'pointer' }}>
+            <button onClick={() => handleSendMessage()} style={{background:'#0070f3', border:'none', color:'#fff', padding:'10px 15px', borderRadius:'12px', cursor:'pointer'}}>
               ↑
             </button>
           </div>
