@@ -334,7 +334,7 @@ export default function ProjectsPage() {
           Start with ROHbot. It shows retrieval, grounding, and a deployable system structure — not just notebooks.
         </p>
         <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
-          <a className="card" style={{ padding: "10px 14px" }} href="https://rohbot.vercel.app" target="_blank" rel="noreferrer">
+          <a className="card" style={{ padding: "10px 14px" }} href="https://carpricepredictor-ntyf6xmpzqwmloqy4jdg87.streamlit.app/" target="_blank" rel="noreferrer">
             Live Demo
           </a>
           <a className="card" style={{ padding: "10px 14px" }} href="https://github.com/RohanrajeBHosale/ROHbot" target="_blank" rel="noreferrer">
