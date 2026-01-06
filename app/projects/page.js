@@ -22,7 +22,22 @@ const CURATED = [
       "https://medium.com/@rohanrajebhosale/building-rohbot-a-deep-dive-into-my-ai-twin-5770320185a7",
     stack: ["Gemini/OpenAI", "Supabase Vector", "Node.js", "Vercel"],
     signal: "Grounding + citations • Deployable • System design",
-    metric: "Deployed system: ingest → index → retrieve → respond (add Hit@K / latency next)",
+    metric: "Deployed system: ingest → index → retrieve → respond",
+  },
+  {
+    id: "car-price",
+    featured: true,
+    category: "ML",
+    title: "AI Used Car Price Estimator",
+    oneLiner:
+      "Production-grade XGBoost regressor deployed via Streamlit to predict vehicle market values with 82% accuracy.",
+    repo: "RohanrajeBHosale/car-price-predictor", // Ensure this matches your GitHub repo name exactly
+    demo: "https://carpricepredictor-ntyf6xmpzqwmloqy4jdg87.streamlit.app/", // Your new Live URL
+    github: "https://github.com/RohanrajeBHosale/car-price-predictor",
+    writeup: null,
+    stack: ["XGBoost", "Streamlit", "Python", "Scikit-Learn"],
+    signal: "End-to-End ML • Deployment • Business Value",
+    metric: "R² Score: 0.82 • Trained on 300k+ real listings",
   },
   {
     id: "sketch-studio",
@@ -31,28 +46,28 @@ const CURATED = [
     title: "Sketch Studio — Sketch → Photorealistic Portraits",
     oneLiner:
       "Stable Diffusion + ControlNet pipeline to preserve sketch structure while generating photorealistic portraits.",
-    repo: null, // put repo like "RohanrajeBHosale/sketch-studio" when ready
+    repo: null, 
     demo: null,
-    github: "https://github.com/RohanrajeBHosale", // replace with exact repo link
+    github: "https://github.com/RohanrajeBHosale", 
     writeup: null,
     stack: ["Stable Diffusion", "ControlNet", "BLIP", "PyTorch"],
     signal: "Conditioned generation • Prompt adherence • Evaluation-ready",
-    metric: "Add SSIM/CLIP or qualitative eval grid (don’t leave blank long-term)",
+    metric: "Add SSIM/CLIP or qualitative eval grid",
   },
   {
-    id: "anomaly",
-    featured: true,
-    category: "Security",
-    title: "Network Anomaly Detection",
+    id: "data-quality",
+    featured: false,
+    category: "Data",
+    title: "Automated Data Quality Control Panel",
     oneLiner:
-      "Traffic anomaly detection comparing classical + deep approaches with practical evaluation and pipeline structure.",
-    repo: null, // put real repo here
+      "ETL validation pipeline detecting schema violations and statistical outliers in financial data.",
+    repo: "RohanrajeBHosale/data-quality-monitoring-system", // Update if you pushed this repo
     demo: null,
-    github: "https://github.com/RohanrajeBHosale", // replace
+    github: "https://github.com/RohanrajeBHosale/data-quality-monitoring-system",
     writeup: null,
-    stack: ["Python", "Scikit-learn", "Autoencoder", "Scapy"],
-    signal: "Model comparison • Security context • Pipeline thinking",
-    metric: "Add AUC/F1 + dataset size + false positive rate",
+    stack: ["Python", "SQL", "Streamlit", "Pandas"],
+    signal: "Data Integrity • Automated Testing • Visualization",
+    metric: "Reduced manual review by ~40% (simulated)",
   },
 
   // Non-featured (keep these STRONG, few, and inspectable)
