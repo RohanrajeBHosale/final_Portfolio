@@ -13,7 +13,7 @@ export default function Home() {
     }, []);
 
     const pillars = [
-        {
+        {  
             title: "GenAI Systems",
             desc: "RAG pipelines, grounding + citations, agent orchestration, API-first design.",
         },
@@ -191,7 +191,7 @@ export default function Home() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "20px", flexWrap: "wrap" }}>
                     <div>
                         <h2 style={{ fontSize: "1.8rem", margin: 0 }}>
-                            Technical writeups <span style={{ opacity: 0.55 }}>(optional)</span>
+                            Technical writeups <span style={{ opacity: 0.55 }}></span>
                         </h2>
                         <p style={{ color: "var(--subtle-text-color)", marginTop: "10px" }}>
                             Deep dives after you’ve seen the code.
