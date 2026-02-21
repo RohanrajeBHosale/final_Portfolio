@@ -21,550 +21,720 @@ function Home() {
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "Home.useEffect": ()=>{
             const tl = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$gsap$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["default"].timeline();
-            tl.from(".hero-text", {
-                y: 50,
+            tl.from(".hero", {
+                y: 40,
                 opacity: 0,
                 duration: 0.8,
                 ease: "power3.out"
-            }).from(".role-pill", {
-                scale: 0.8,
+            }).from(".cta", {
                 opacity: 0,
-                stagger: 0.1,
+                y: 10,
+                stagger: 0.12,
+                duration: 0.4
+            }, "-=0.3").from(".section", {
+                y: 25,
+                opacity: 0,
+                stagger: 0.18,
                 duration: 0.5
-            }, "-=0.4").from(".highlight-card", {
-                y: 30,
-                opacity: 0,
-                stagger: 0.2,
-                duration: 0.8
-            }, "-=0.3");
+            }, "-=0.15");
         }
     }["Home.useEffect"], []);
-    const roles = [
+    const pillars = [
         {
-            title: "AI/ML Engineer",
-            desc: "GenAI, LLM Systems & Computer Vision",
-            icon: "brain"
+            title: "GenAI Systems",
+            desc: "RAG pipelines, grounding + citations, agent orchestration, API-first design."
         },
         {
-            title: "Data Scientist",
-            desc: "Statistical Modeling & Predictive Analytics",
-            icon: "chart-line"
+            title: "ML & Data Pipelines",
+            desc: "Ingestion → ETL → indexing/training, batch workflows, cloud deployments."
         },
         {
-            title: "Data Engineer",
-            desc: "ETL Pipelines, Spark & API Architecture",
-            icon: "database"
+            title: "Evaluation & Reliability",
+            desc: "Offline eval, regression tests, latency awareness, fallbacks & failure modes."
+        }
+    ];
+    const work = [
+        {
+            tag: "GENAI • RAG",
+            title: "ROHbot — Portfolio RAG Assistant",
+            desc: "LLM assistant that answers questions about my work using retrieval + grounded responses with sources.",
+            links: [
+                {
+                    label: "Live Demo",
+                    href: "https://rohbot.vercel.app",
+                    external: true
+                },
+                {
+                    label: "GitHub",
+                    href: "https://github.com/RohanrajeBHosale/ROHbot",
+                    external: true
+                },
+                {
+                    label: "Architecture",
+                    href: "/projects/rohbot",
+                    external: false
+                }
+            ]
         },
         {
-            title: "Data Analyst",
-            desc: "Business Intelligence & SQL Optimization",
-            icon: "magnifying-glass-chart"
+            tag: "CV • DIFFUSION",
+            title: "Sketch Studio — Sketch → Photorealistic Portraits",
+            desc: "Stable Diffusion + ControlNet + BLIP pipeline to preserve structure and improve prompt adherence.",
+            links: [
+                {
+                    label: "Project",
+                    href: "/projects",
+                    external: false
+                },
+                {
+                    label: "Writeup",
+                    href: "/projects",
+                    external: false
+                }
+            ]
         },
         {
-            title: "Data Center Specialist",
-            desc: "Automation, Reliability & Infrastructure",
-            icon: "server"
+            tag: "SECURITY • ML",
+            title: "Network Anomaly Detection",
+            desc: "Traffic anomaly detection with classical + deep approaches (Isolation Forest, One-Class SVM, Autoencoder).",
+            links: [
+                {
+                    label: "Project",
+                    href: "/projects",
+                    external: false
+                },
+                {
+                    label: "GitHub",
+                    href: "https://github.com/RohanrajeBHosale",
+                    external: true
+                }
+            ]
         }
     ];
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "container",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+                className: "hero",
                 style: {
-                    textAlign: 'center',
-                    marginBottom: '100px'
+                    textAlign: "center",
+                    marginBottom: "110px"
                 },
                 children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "hero-text",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                                style: {
-                                    fontSize: '4.5rem',
-                                    fontWeight: 900,
-                                    marginBottom: '10px'
-                                },
-                                className: "gradient-text",
-                                children: "Rohanraje Bhosale"
-                            }, void 0, false, {
-                                fileName: "[project]/app/page.js",
-                                lineNumber: 27,
-                                columnNumber: 21
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                style: {
-                                    fontSize: '1.5rem',
-                                    color: '#fff',
-                                    marginBottom: '30px'
-                                },
-                                children: "Architecting the End-to-End Data Lifecycle"
-                            }, void 0, false, {
-                                fileName: "[project]/app/page.js",
-                                lineNumber: 30,
-                                columnNumber: 21
-                            }, this)
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/app/page.js",
-                        lineNumber: 26,
-                        columnNumber: 17
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
                         style: {
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            justifyContent: 'center',
-                            gap: '12px',
-                            maxWidth: '800px',
-                            margin: '0 auto 40px'
+                            fontSize: "4.2rem",
+                            fontWeight: 900,
+                            marginBottom: "18px"
                         },
-                        children: roles.map((r, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "role-pill",
-                                style: {
-                                    padding: '8px 20px',
-                                    background: 'rgba(255,255,255,0.05)',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '30px',
-                                    fontSize: '0.85rem',
-                                    color: 'var(--subtle-text-color)'
-                                },
-                                children: r.title
-                            }, i, false, {
-                                fileName: "[project]/app/page.js",
-                                lineNumber: 38,
-                                columnNumber: 25
-                            }, this))
+                        className: "gradient-text",
+                        children: "I build production-grade GenAI systems — not demos."
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 36,
+                        lineNumber: 65,
+                        columnNumber: 17
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        style: {
+                            fontSize: "1.15rem",
+                            color: "var(--subtle-text-color)",
+                            maxWidth: "820px",
+                            margin: "0 auto 42px"
+                        },
+                        children: "RAG, agents, and ML pipelines with grounding, evaluation, and deployment in mind."
+                    }, void 0, false, {
+                        fileName: "[project]/app/page.js",
+                        lineNumber: 72,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "hero-text",
+                        className: "cta",
                         style: {
-                            display: 'flex',
-                            justifyContent: 'center',
-                            gap: '20px'
+                            display: "flex",
+                            justifyContent: "center",
+                            gap: "16px",
+                            flexWrap: "wrap"
                         },
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                                 href: "/projects",
                                 className: "card",
                                 style: {
-                                    padding: '12px 30px',
-                                    background: 'var(--accent-color-1)',
-                                    color: '#fff',
-                                    border: 'none'
+                                    padding: "12px 28px",
+                                    background: "var(--accent-color-1)",
+                                    color: "#fff",
+                                    border: "none"
                                 },
-                                children: "Explore My Work"
+                                children: "Projects"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 52,
+                                lineNumber: 84,
+                                columnNumber: 21
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                href: "https://github.com/RohanrajeBHosale",
+                                target: "_blank",
+                                rel: "noreferrer",
+                                className: "card",
+                                style: {
+                                    padding: "12px 28px"
+                                },
+                                children: "GitHub"
+                            }, void 0, false, {
+                                fileName: "[project]/app/page.js",
+                                lineNumber: 92,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
                                 href: "mailto:therohanrajebhosale@gmail.com",
                                 className: "card",
                                 style: {
-                                    padding: '12px 30px',
-                                    color: '#fff'
+                                    padding: "12px 28px"
                                 },
-                                children: "Contact Me"
+                                children: "Contact"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 55,
+                                lineNumber: 102,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 51,
+                        lineNumber: 83,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.js",
-                lineNumber: 25,
+                lineNumber: 64,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+                className: "section",
                 style: {
-                    marginBottom: '100px'
+                    marginBottom: "110px"
                 },
                 children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                         style: {
-                            fontSize: '2rem',
-                            textAlign: 'center',
-                            marginBottom: '50px'
+                            fontSize: "2rem",
+                            textAlign: "center",
+                            marginBottom: "14px"
                         },
-                        children: "Specialized Expertise"
+                        children: "What I build"
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 63,
+                        lineNumber: 114,
+                        columnNumber: 17
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        style: {
+                            textAlign: "center",
+                            color: "var(--subtle-text-color)",
+                            marginBottom: "46px"
+                        },
+                        children: "Three lanes. No role-shopping. Inspectable systems."
+                    }, void 0, false, {
+                        fileName: "[project]/app/page.js",
+                        lineNumber: 115,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "card-grid",
-                        children: roles.map((role, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "highlight-card card",
+                        children: pillars.map((p, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "card highlight-card",
                                 style: {
-                                    textAlign: 'center'
+                                    textAlign: "left"
                                 },
                                 children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("i", {
-                                        className: `fas fa-${role.icon}`,
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                                         style: {
-                                            fontSize: '2rem',
-                                            color: 'var(--accent-color-1)',
-                                            marginBottom: '20px'
-                                        }
-                                    }, void 0, false, {
-                                        fileName: "[project]/app/page.js",
-                                        lineNumber: 67,
-                                        columnNumber: 29
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
-                                        style: {
-                                            fontSize: '1.2rem',
-                                            marginBottom: '10px'
+                                            marginBottom: "10px"
                                         },
-                                        children: role.title
+                                        children: p.title
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 68,
+                                        lineNumber: 122,
                                         columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                         style: {
-                                            fontSize: '0.9rem'
+                                            margin: 0,
+                                            color: "var(--subtle-text-color)",
+                                            lineHeight: 1.6
                                         },
-                                        children: role.desc
+                                        children: p.desc
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 69,
+                                        lineNumber: 123,
                                         columnNumber: 29
                                     }, this)
                                 ]
                             }, i, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 66,
+                                lineNumber: 121,
                                 columnNumber: 25
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 64,
+                        lineNumber: 119,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.js",
-                lineNumber: 62,
+                lineNumber: 113,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+                className: "section",
                 style: {
-                    marginBottom: '100px'
+                    marginBottom: "110px"
                 },
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         style: {
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'flex-end',
-                            marginBottom: '40px'
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-end",
+                            gap: "20px",
+                            flexWrap: "wrap"
                         },
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                                         style: {
-                                            fontSize: '2rem',
+                                            fontSize: "2rem",
                                             margin: 0
                                         },
-                                        children: "Latest Writings"
+                                        children: "Selected work"
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 79,
+                                        lineNumber: 133,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                         style: {
-                                            color: 'var(--subtle-text-color)'
+                                            color: "var(--subtle-text-color)",
+                                            marginTop: "10px"
                                         },
-                                        children: "Sharing insights on AI, Data Engineering, and Formula 1."
+                                        children: "A few systems that show how I think, build, and ship."
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 80,
+                                        lineNumber: 134,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 78,
+                                lineNumber: 132,
                                 columnNumber: 21
                             }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                href: "https://medium.com/@rohanrajebhosale",
-                                target: "_blank",
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                href: "/projects",
                                 style: {
-                                    color: 'var(--accent-color-1)',
-                                    textDecoration: 'none',
-                                    fontWeight: 'bold'
+                                    color: "var(--accent-color-1)",
+                                    textDecoration: "none",
+                                    fontWeight: "bold"
                                 },
-                                children: [
-                                    "Read all on Medium ",
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("i", {
-                                        className: "fas fa-external-link-alt"
-                                    }, void 0, false, {
-                                        fileName: "[project]/app/page.js",
-                                        lineNumber: 83,
-                                        columnNumber: 44
-                                    }, this)
-                                ]
-                            }, void 0, true, {
+                                children: "See all projects →"
+                            }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 82,
+                                lineNumber: 139,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 77,
+                        lineNumber: 131,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "card-grid",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                href: "https://medium.com/@rohanrajebhosale/building-rohbot-a-deep-dive-into-my-ai-twin-5770320185a7",
-                                target: "_blank",
+                        style: {
+                            marginTop: "40px"
+                        },
+                        children: work.map((w, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "card highlight-card",
+                                style: {
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "14px"
+                                },
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         style: {
-                                            fontSize: '0.7rem',
-                                            color: 'var(--accent-color-1)'
+                                            fontSize: "0.75rem",
+                                            letterSpacing: "0.06em",
+                                            color: "var(--accent-color-1)"
                                         },
-                                        children: "AI & RAG"
+                                        children: w.tag
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 89,
-                                        columnNumber: 25
+                                        lineNumber: 150,
+                                        columnNumber: 15
                                     }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                                         style: {
-                                            margin: '10px 0'
+                                            margin: 0
                                         },
-                                        children: "Building ROHbot: A Deep Dive into My AI Twin"
+                                        children: w.title
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 90,
+                                        lineNumber: 154,
+                                        columnNumber: 29
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        style: {
+                                            margin: 0,
+                                            color: "var(--subtle-text-color)",
+                                            lineHeight: 1.6
+                                        },
+                                        children: w.desc
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/page.js",
+                                        lineNumber: 155,
+                                        columnNumber: 29
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        style: {
+                                            display: "flex",
+                                            gap: "12px",
+                                            flexWrap: "wrap",
+                                            marginTop: "8px"
+                                        },
+                                        children: w.links.map((l, idx)=>l.external ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                                href: l.href,
+                                                target: "_blank",
+                                                rel: "noreferrer",
+                                                className: "card",
+                                                style: {
+                                                    padding: "10px 14px",
+                                                    fontSize: "0.9rem"
+                                                },
+                                                children: l.label
+                                            }, idx, false, {
+                                                fileName: "[project]/app/page.js",
+                                                lineNumber: 162,
+                                                columnNumber: 41
+                                            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                href: l.href,
+                                                className: "card",
+                                                style: {
+                                                    padding: "10px 14px",
+                                                    fontSize: "0.9rem"
+                                                },
+                                                children: l.label
+                                            }, idx, false, {
+                                                fileName: "[project]/app/page.js",
+                                                lineNumber: 173,
+                                                columnNumber: 41
+                                            }, this))
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/page.js",
+                                        lineNumber: 159,
+                                        columnNumber: 29
+                                    }, this)
+                                ]
+                            }, i, true, {
+                                fileName: "[project]/app/page.js",
+                                lineNumber: 149,
+                                columnNumber: 25
+                            }, this))
+                    }, void 0, false, {
+                        fileName: "[project]/app/page.js",
+                        lineNumber: 147,
+                        columnNumber: 17
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/app/page.js",
+                lineNumber: 130,
+                columnNumber: 13
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+                className: "section",
+                style: {
+                    marginBottom: "110px"
+                },
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-end",
+                            gap: "20px",
+                            flexWrap: "wrap"
+                        },
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                        style: {
+                                            fontSize: "1.8rem",
+                                            margin: 0
+                                        },
+                                        children: [
+                                            "Technical writeups ",
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                style: {
+                                                    opacity: 0.55
+                                                },
+                                                children: "(optional)"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/page.js",
+                                                lineNumber: 194,
+                                                columnNumber: 48
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/page.js",
+                                        lineNumber: 193,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                         style: {
-                                            fontSize: '0.85rem'
+                                            color: "var(--subtle-text-color)",
+                                            marginTop: "10px"
                                         },
-                                        children: "Architecting a full-stack RAG system with Gemini and Supabase."
+                                        children: "Deep dives after you’ve seen the code."
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 91,
+                                        lineNumber: 196,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 88,
+                                lineNumber: 192,
+                                columnNumber: 21
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                href: "https://medium.com/@rohanrajebhosale",
+                                target: "_blank",
+                                rel: "noreferrer",
+                                style: {
+                                    color: "var(--accent-color-1)",
+                                    textDecoration: "none",
+                                    fontWeight: "bold"
+                                },
+                                children: "Read on Medium →"
+                            }, void 0, false, {
+                                fileName: "[project]/app/page.js",
+                                lineNumber: 201,
+                                columnNumber: 21
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/app/page.js",
+                        lineNumber: 191,
+                        columnNumber: 17
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "card-grid",
+                        style: {
+                            marginTop: "40px"
+                        },
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                href: "https://medium.com/@rohanrajebhosale/building-rohbot-a-deep-dive-into-my-ai-twin-5770320185a7",
+                                target: "_blank",
+                                rel: "noreferrer",
+                                className: "card highlight-card",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        style: {
+                                            fontSize: "0.75rem",
+                                            color: "var(--accent-color-1)"
+                                        },
+                                        children: "AI • RAG"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/page.js",
+                                        lineNumber: 218,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                        style: {
+                                            margin: "10px 0"
+                                        },
+                                        children: "Building ROHbot"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/page.js",
+                                        lineNumber: 219,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        style: {
+                                            margin: 0,
+                                            color: "var(--subtle-text-color)"
+                                        },
+                                        children: "Retrieval, grounding, and how the system is structured."
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/page.js",
+                                        lineNumber: 220,
+                                        columnNumber: 25
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/app/page.js",
+                                lineNumber: 212,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
                                 href: "https://medium.com/@rohanrajebhosale/from-zero-to-f1-data-building-a-web-app-with-python-and-streamlit-fdba80c1a94e",
                                 target: "_blank",
+                                rel: "noreferrer",
                                 className: "card highlight-card",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         style: {
-                                            fontSize: '0.7rem',
-                                            color: 'var(--accent-color-1)'
+                                            fontSize: "0.75rem",
+                                            color: "var(--accent-color-1)"
                                         },
-                                        children: "DATA ENGINEERING"
+                                        children: "DATA"
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 94,
+                                        lineNumber: 231,
                                         columnNumber: 25
                                     }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                                         style: {
-                                            margin: '10px 0'
+                                            margin: "10px 0"
                                         },
                                         children: "From Zero to F1 Data"
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 95,
+                                        lineNumber: 232,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                         style: {
-                                            fontSize: '0.85rem'
+                                            margin: 0,
+                                            color: "var(--subtle-text-color)"
                                         },
-                                        children: "Automating Formula 1 data pipelines using Python and Streamlit."
+                                        children: "Pipelines, automation, and usable analytics."
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 96,
+                                        lineNumber: 233,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 93,
+                                lineNumber: 225,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 87,
+                        lineNumber: 211,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.js",
-                lineNumber: 76,
+                lineNumber: 190,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+                className: "section",
                 style: {
-                    textAlign: 'center',
-                    padding: '60px',
-                    background: 'rgba(255,255,255,0.02)',
-                    borderRadius: '20px',
-                    border: '1px solid var(--border-color)'
+                    textAlign: "center",
+                    padding: "70px 40px",
+                    background: "rgba(255,255,255,0.02)",
+                    borderRadius: "20px",
+                    border: "1px solid var(--border-color)"
                 },
                 children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                         style: {
-                            fontSize: '2.5rem',
-                            marginBottom: '20px'
+                            fontSize: "2.4rem",
+                            marginBottom: "18px"
                         },
                         className: "gradient-text",
-                        children: "Let's Build Something"
+                        children: "Let’s build something real"
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 103,
+                        lineNumber: 251,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         style: {
-                            color: 'var(--subtle-text-color)',
-                            marginBottom: '40px',
-                            maxWidth: '600px',
-                            margin: '0 auto 40px'
+                            color: "var(--subtle-text-color)",
+                            maxWidth: "640px",
+                            margin: "0 auto 34px"
                         },
-                        children: "Whether you are looking for an ML Engineer to build GenAI systems or a Data Engineer to scale your infrastructure, I'm ready to contribute."
+                        children: "I’m interested in roles where I can design and ship real ML and GenAI systems."
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 104,
+                        lineNumber: 255,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         style: {
-                            display: 'flex',
-                            justifyContent: 'center',
-                            gap: '30px',
-                            fontSize: '1.5rem'
+                            display: "flex",
+                            justifyContent: "center",
+                            gap: "22px",
+                            flexWrap: "wrap"
                         },
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
                                 href: "mailto:therohanrajebhosale@gmail.com",
+                                className: "card",
                                 style: {
-                                    color: 'var(--subtle-text-color)'
+                                    padding: "10px 14px"
                                 },
-                                title: "Email",
-                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("i", {
-                                    className: "fas fa-envelope"
-                                }, void 0, false, {
-                                    fileName: "[project]/app/page.js",
-                                    lineNumber: 108,
-                                    columnNumber: 128
-                                }, this)
+                                children: "Email"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 108,
+                                lineNumber: 266,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
                                 href: "https://www.linkedin.com/in/rohanrajebhosale/",
                                 target: "_blank",
+                                rel: "noreferrer",
+                                className: "card",
                                 style: {
-                                    color: 'var(--subtle-text-color)'
+                                    padding: "10px 14px"
                                 },
-                                title: "LinkedIn",
-                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("i", {
-                                    className: "fab fa-linkedin"
-                                }, void 0, false, {
-                                    fileName: "[project]/app/page.js",
-                                    lineNumber: 109,
-                                    columnNumber: 156
-                                }, this)
+                                children: "LinkedIn"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 109,
+                                lineNumber: 269,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                href: "https://github.com/RohanrajeBhosale",
+                                href: "https://github.com/RohanrajeBHosale",
                                 target: "_blank",
+                                rel: "noreferrer",
+                                className: "card",
                                 style: {
-                                    color: 'var(--subtle-text-color)'
+                                    padding: "10px 14px"
                                 },
-                                title: "GitHub",
-                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("i", {
-                                    className: "fab fa-github"
-                                }, void 0, false, {
-                                    fileName: "[project]/app/page.js",
-                                    lineNumber: 110,
-                                    columnNumber: 144
-                                }, this)
+                                children: "GitHub"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 110,
-                                columnNumber: 21
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                href: "https://medium.com/@rohanrajebhosale",
-                                target: "_blank",
-                                style: {
-                                    color: 'var(--subtle-text-color)'
-                                },
-                                title: "Medium",
-                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("i", {
-                                    className: "fab fa-medium"
-                                }, void 0, false, {
-                                    fileName: "[project]/app/page.js",
-                                    lineNumber: 111,
-                                    columnNumber: 145
-                                }, this)
-                            }, void 0, false, {
-                                fileName: "[project]/app/page.js",
-                                lineNumber: 111,
+                                lineNumber: 278,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 107,
+                        lineNumber: 265,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.js",
-                lineNumber: 102,
+                lineNumber: 241,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/page.js",
-        lineNumber: 23,
+        lineNumber: 62,
         columnNumber: 9
     }, this);
 }

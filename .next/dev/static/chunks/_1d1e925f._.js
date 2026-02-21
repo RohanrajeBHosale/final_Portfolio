@@ -217,14 +217,24 @@ function Rohbot() {
     const [messages, setMessages] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const scrollRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
-    const audioRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    // Voice & Interruption Control
+    const audioQueue = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])([]);
+    const isPlaying = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(false);
+    const currentAudio = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    // Suggestions Data
+    const presets = [
+        "Tell me about your education",
+        "What are your core AI skills?",
+        "Show me your RAG projects",
+        "Data Center experience?"
+    ];
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "Rohbot.useEffect": ()=>{
             setMounted(true);
             setMessages([
                 {
                     role: 'bot',
-                    content: "Hello. I am ROHbot, an AI twin of Rohan. Ask me anything about my education or projects."
+                    content: "Hi! I'm Rohan's twin. Use the suggestions below or ask me anything brief."
                 }
             ]);
         }
@@ -234,11 +244,31 @@ function Rohbot() {
             if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }["Rohbot.useEffect"], [
-        messages
+        messages,
+        loading
     ]);
     if (!mounted) return null;
-    // --- ELEVENLABS VOICE TRIGGER ---
-    const speakText = async (text)=>{
+    const stopBotSpeaking = ()=>{
+        if (currentAudio.current) {
+            currentAudio.current.pause();
+            currentAudio.current = null;
+        }
+        audioQueue.current = [];
+        isPlaying.current = false;
+    };
+    const playNextInQueue = ()=>{
+        if (audioQueue.current.length === 0) {
+            isPlaying.current = false;
+            return;
+        }
+        isPlaying.current = true;
+        const audioUrl = audioQueue.current.shift();
+        const audio = new Audio(audioUrl);
+        currentAudio.current = audio;
+        audio.play();
+        audio.onended = ()=>playNextInQueue();
+    };
+    const speakSentence = async (text)=>{
         try {
             const res = await fetch('https://rohbot.vercel.app/api/tts', {
                 method: 'POST',
@@ -252,21 +282,21 @@ function Rohbot() {
             if (!res.ok) return;
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
-            if (audioRef.current) audioRef.current.pause();
-            audioRef.current = new Audio(url);
-            audioRef.current.play();
+            audioQueue.current.push(url);
+            if (!isPlaying.current) playNextInQueue();
         } catch (e) {
-            console.error("Voice Error:", e);
+            console.error(e);
         }
     };
-    const handleSendMessage = async ()=>{
-        if (!input.trim() || loading) return;
-        const userText = input;
+    const handleSendMessage = async (textOverride)=>{
+        const text = typeof textOverride === 'string' ? textOverride : input;
+        if (!text.trim() || loading) return;
+        stopBotSpeaking();
         setMessages((prev)=>[
                 ...prev,
                 {
                     role: 'user',
-                    content: userText
+                    content: text
                 }
             ]);
         setInput('');
@@ -278,7 +308,7 @@ function Rohbot() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    userInput: userText,
+                    userInput: text,
                     history: messages.slice(1).map((m)=>({
                             role: m.role === 'user' ? 'user' : 'model',
                             parts: [
@@ -298,7 +328,8 @@ function Rohbot() {
                         content: ""
                     }
                 ]);
-            let fullText = ""; // Accumulator to send to ElevenLabs
+            let fullText = "";
+            let currentSentence = "";
             while(true){
                 const { done, value } = await reader.read();
                 if (done) break;
@@ -306,6 +337,11 @@ function Rohbot() {
                     stream: true
                 });
                 fullText += chunk;
+                currentSentence += chunk;
+                if (/[.!?]/.test(chunk)) {
+                    speakSentence(currentSentence.trim());
+                    currentSentence = "";
+                }
                 setMessages((prev)=>{
                     const newMsgs = [
                         ...prev
@@ -314,14 +350,13 @@ function Rohbot() {
                     return newMsgs;
                 });
             }
-            // --- TRIGGER ELEVENLABS AFTER STREAM FINISHES ---
-            speakText(fullText);
+            if (currentSentence.trim()) speakSentence(currentSentence.trim());
         } catch (e) {
             setMessages((prev)=>[
                     ...prev,
                     {
                         role: 'bot',
-                        content: "Snag in the connection. Try again!"
+                        content: "Snag in the connection."
                     }
                 ]);
         } finally{
@@ -334,8 +369,8 @@ function Rohbot() {
             bottom: '30px',
             right: '30px',
             zIndex: 1000,
-            width: '60px',
-            height: '60px',
+            width: '65px',
+            height: '65px',
             borderRadius: '50%',
             backgroundColor: '#0070f3',
             border: 'none',
@@ -347,14 +382,14 @@ function Rohbot() {
         },
         win: {
             position: 'fixed',
-            bottom: '100px',
+            bottom: '110px',
             right: '30px',
             zIndex: 1000,
             width: '350px',
-            height: '500px',
+            height: '520px',
             backgroundColor: '#0d1117',
             border: '1px solid #333',
-            borderRadius: '16px',
+            borderRadius: '20px',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
@@ -364,21 +399,45 @@ function Rohbot() {
         chat: {
             flex: 1,
             overflowY: 'auto',
-            padding: '15px',
+            padding: '20px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px'
+            gap: '12px'
         },
         msg: (role)=>({
                 alignSelf: role === 'user' ? 'flex-end' : 'flex-start',
-                backgroundColor: role === 'user' ? '#0070f3' : '#222',
+                backgroundColor: role === 'user' ? '#0070f3' : '#1a1a1a',
                 color: '#fff',
-                padding: '10px 14px',
-                borderRadius: '12px',
+                padding: '12px 16px',
+                borderRadius: '15px',
                 fontSize: '13px',
-                maxWidth: '80%',
+                maxWidth: '85%',
                 lineHeight: '1.4'
-            })
+            }),
+        suggestions: {
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '8px',
+            padding: '0 20px 15px 20px',
+            backgroundColor: '#0d1117'
+        },
+        pill: {
+            backgroundColor: '#161b22',
+            border: '1px solid #333',
+            color: '#888',
+            padding: '6px 12px',
+            borderRadius: '20px',
+            fontSize: '11px',
+            cursor: 'pointer',
+            transition: '0.2s'
+        },
+        inputArea: {
+            padding: '15px',
+            borderTop: '1px solid #222',
+            display: 'flex',
+            gap: '10px',
+            backgroundColor: '#111'
+        }
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
         children: [
@@ -388,26 +447,26 @@ function Rohbot() {
                 children: isOpen ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                     style: {
                         color: '#fff',
-                        fontSize: '20px'
+                        fontSize: '24px'
                     },
                     children: "✕"
                 }, void 0, false, {
                     fileName: "[project]/components/Rohbot.js",
-                    lineNumber: 97,
+                    lineNumber: 140,
                     columnNumber: 27
                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                     style: {
-                        fontSize: '24px'
+                        fontSize: '30px'
                     },
                     children: "🤖"
                 }, void 0, false, {
                     fileName: "[project]/components/Rohbot.js",
-                    lineNumber: 97,
+                    lineNumber: 140,
                     columnNumber: 84
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/Rohbot.js",
-                lineNumber: 96,
+                lineNumber: 139,
                 columnNumber: 13
             }, this),
             isOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -416,15 +475,47 @@ function Rohbot() {
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         style: {
                             padding: '15px',
-                            background: '#161b22',
-                            borderBottom: '1px solid #333',
+                            background: '#111',
+                            borderBottom: '1px solid #222',
                             fontWeight: 'bold',
-                            color: '#fff'
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
                         },
-                        children: "ROHbot (AI Twin)"
-                    }, void 0, false, {
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                style: {
+                                    fontSize: '14px',
+                                    color: '#eee'
+                                },
+                                children: "ROHbot"
+                            }, void 0, false, {
+                                fileName: "[project]/components/Rohbot.js",
+                                lineNumber: 145,
+                                columnNumber: 25
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                onClick: stopBotSpeaking,
+                                style: {
+                                    fontSize: '9px',
+                                    color: '#555',
+                                    background: 'none',
+                                    border: '1px solid #333',
+                                    padding: '4px 8px',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold'
+                                },
+                                children: "STOP VOICE"
+                            }, void 0, false, {
+                                fileName: "[project]/components/Rohbot.js",
+                                lineNumber: 146,
+                                columnNumber: 25
+                            }, this)
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/components/Rohbot.js",
-                        lineNumber: 101,
+                        lineNumber: 144,
                         columnNumber: 21
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -436,33 +527,53 @@ function Rohbot() {
                                     children: m.content
                                 }, i, false, {
                                     fileName: "[project]/components/Rohbot.js",
-                                    lineNumber: 103,
+                                    lineNumber: 150,
                                     columnNumber: 51
                                 }, this)),
                             loading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 style: {
-                                    fontSize: '10px',
-                                    color: '#444'
+                                    fontSize: '11px',
+                                    color: '#555',
+                                    animate: 'pulse'
                                 },
-                                children: "GENERATING VOICE..."
+                                children: "Thinking..."
                             }, void 0, false, {
                                 fileName: "[project]/components/Rohbot.js",
-                                lineNumber: 104,
+                                lineNumber: 151,
                                 columnNumber: 37
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/Rohbot.js",
-                        lineNumber: 102,
+                        lineNumber: 149,
                         columnNumber: 21
                     }, this),
+                    messages.length === 1 && !loading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: s.suggestions,
+                        children: presets.map((text)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                onClick: ()=>handleSendMessage(text),
+                                style: s.pill,
+                                onMouseOver: (e)=>{
+                                    e.target.style.borderColor = '#0070f3';
+                                    e.target.style.color = '#fff';
+                                },
+                                onMouseOut: (e)=>{
+                                    e.target.style.borderColor = '#333';
+                                    e.target.style.color = '#888';
+                                },
+                                children: text
+                            }, text, false, {
+                                fileName: "[project]/components/Rohbot.js",
+                                lineNumber: 158,
+                                columnNumber: 33
+                            }, this))
+                    }, void 0, false, {
+                        fileName: "[project]/components/Rohbot.js",
+                        lineNumber: 156,
+                        columnNumber: 25
+                    }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        style: {
-                            padding: '15px',
-                            borderTop: '1px solid #333',
-                            display: 'flex',
-                            gap: '10px'
-                        },
+                        style: s.inputArea,
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                 style: {
@@ -470,51 +581,52 @@ function Rohbot() {
                                     background: '#000',
                                     border: '1px solid #333',
                                     color: '#fff',
-                                    padding: '8px',
-                                    borderRadius: '6px',
-                                    outline: 'none'
+                                    padding: '10px',
+                                    borderRadius: '12px',
+                                    outline: 'none',
+                                    fontSize: '13px'
                                 },
                                 value: input,
                                 onChange: (e)=>setInput(e.target.value),
                                 onKeyDown: (e)=>e.key === 'Enter' && handleSendMessage(),
-                                placeholder: "Ask me..."
+                                placeholder: "Ask me something..."
                             }, void 0, false, {
                                 fileName: "[project]/components/Rohbot.js",
-                                lineNumber: 107,
+                                lineNumber: 172,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                onClick: handleSendMessage,
+                                onClick: ()=>handleSendMessage(),
                                 style: {
                                     background: '#0070f3',
                                     border: 'none',
                                     color: '#fff',
-                                    padding: '0 15px',
-                                    borderRadius: '6px',
+                                    padding: '10px 15px',
+                                    borderRadius: '12px',
                                     cursor: 'pointer'
                                 },
                                 children: "↑"
                             }, void 0, false, {
                                 fileName: "[project]/components/Rohbot.js",
-                                lineNumber: 108,
+                                lineNumber: 173,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/Rohbot.js",
-                        lineNumber: 106,
+                        lineNumber: 171,
                         columnNumber: 21
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/Rohbot.js",
-                lineNumber: 100,
+                lineNumber: 143,
                 columnNumber: 17
             }, this)
         ]
     }, void 0, true);
 }
-_s(Rohbot, "DPNtSHxnyZsOs2klxVzX/ZRpx9Q=");
+_s(Rohbot, "Rcm7nSwwMZKahthUlBocYPtPtzw=");
 _c = Rohbot;
 var _c;
 __turbopack_context__.k.register(_c, "Rohbot");
